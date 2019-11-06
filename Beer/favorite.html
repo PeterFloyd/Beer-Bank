@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <title>The Beer Bank</title>
+      <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"> <!-- Bootstrap core CSS -->
+      <link href="css/business-frontpage.css" rel="stylesheet"> <!-- Custom styles for this template -->
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.11/css/select2.min.css" rel="stylesheet" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css">
+      <script src="vendor/jquery/jquery.min.js"></script> <!-- Bootstrap core JavaScript -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.11/js/select2.min.js"></script>
+      <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+      <link rel="stylesheet" href="estilo.css">
+      
+      <script>
+        var resposta;
+
+        function reqListener () {
+          resposta = eval(this.response);
+          $('#produtos').empty()
+          var produtos = document.getElementById("produtos")
+          var favoritos = obterFavoritos()
+			console.log(favoritos)
+
+          resposta.forEach(function(item,index) {
+			if (favoritos.indexOf(item.id) > -1) {
+			console.log(item.id)
+              produtos.insertAdjacentHTML( 'beforeend',
+                '<div class="col-md-4 mb-5">\n'+
+                '  <div class="card h-100">\n'+
+                '  <div class="star">\n'+
+                `    <i id="star${index}" class="far fa-star fas"></i></div>\n`+
+                '    <img class="card-img-top" src="'+item.image_url+'" alt="" onclick="abrirModal('+index+')">\n'+
+                '    <div class="card-body">\n'+
+                '      <h4 class="card-title"></h4>\n'+
+                '      <p class="card-text" onclick="abrirModal('+index+')">'+item.name+'</p>\n'+
+                '    <div class="card-footer">'+item.tagline+'</div>\n'+
+                '   </div>\n'+
+                '  </div>\n'+
+                '</div>'
+              )		
+			}
+		  });
+        };
+
+        var oReq = new XMLHttpRequest();
+          oReq.onload = reqListener;
+
+        function load() {
+          var url = 'https://api.punkapi.com/v2/beers'
+          if ($('[type=search]').val()) {
+            url += '?beer_name='+$('[type=search]').val()
+          }
+          oReq.open("get", url, true);
+          oReq.send();
+        }
+
+        load() 
+
+        function abrirModal (index) {
+          var item = resposta[index]
+          $('.modal-body h2').html(item.name)
+          $('.modal-body h3').html(item.tagline)
+          $('.modal-body h4').html('<b>IBU: </b>'+item.ibu+'    <b>ABV: </b>'+item.abv+'    <b>EBC: </b>'+item.ebc)
+          $('.modal-body p').html(item.description)
+          $('.modal-body ul').empty()
+          item.food_pairing.forEach(function(item,index) {
+            $('.modal-body ul').append('<li>'+item+'</li>')
+          })
+          $('.modal-body img').attr('src',item.image_url)
+          $('#modal').modal('show')
+          $('#relacionados').empty()
+          for (let i = 0; i < 3; i++) {
+            var beer = resposta[Math.floor((Math.random() * resposta.length) + 1)]
+            bloco = $('<div/>')
+            bloco.append(`<img src="${beer.image_url}">`)
+            bloco.append(`<h5>${beer.name}</h5>`)
+            console.log(bloco)
+            $('#relacionados').append(bloco)
+          }
+        }
+
+        function obterFavoritos() {
+          return JSON.parse(window.localStorage.getItem('favoritos')) 
+        }
+
+      </script>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg fixed-top"> <!-- Navigation -->
+      <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">HOME</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="favorite.html">FAVORITE</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <header class="bg-primary py-5 mb-5">
+      <h1>The Beer Bank</h1>
+      <h2>Find your favorite beer here</h2>
+      <input type="search" placeholder="Search for beer name" onchange="load()">
+    </header>
+
+    <div class="container"> <!-- Page Content -->
+      <div class="row" id="produtos">
+        
+      </div>
+    </div>
+
+      </div>
+      <!-- /.row -->
+
+    </div>
+    <!-- /.container -->
+
+    <footer class="py-5 bg-dark"> <!-- Footer -->
+      <div class="container">
+        <p class="m-0 text-center text-white">Copyright &copy; The Beer Bank by Nostradamus 2019</p>
+      </div>
+      <!-- /.container -->
+    </footer>
+
+    <div class="modal" tabindex="-1" role="dialog" id="modal">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <img src="" alt="">
+                </div>
+                <div class="col-md-9">
+                  <h2></h2>
+                  <h3></h3>
+                  <hr>
+                  <h4></h4>
+                  <br>
+                  <p></p>
+                  <h5>Best served with:</h5>
+                  <ul></ul>
+                </div>
+                <h6 id="also-like">You might also like:</h6>
+                <div id="relacionados"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+  </body>
+
+</html>

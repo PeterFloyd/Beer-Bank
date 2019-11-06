@@ -1,0 +1,141 @@
+body {
+  background-color: rgb(221, 221, 221);
+}
+header.bg-primary {
+  color: white;
+  background-color: rgb(255, 128, 23)!important;
+  text-align: center;
+  padding: 30px!important;
+}
+header.bg-primary h1 {
+  font-size: 50px;
+  font-weight: bolder;
+  padding: 10px;
+  margin: 0px;
+}
+header.bg-primary h2 {
+  font-size: 20px;
+}
+header.bg-primary input {
+  width: 550px;
+}
+footer.py-5 {
+  background-color: rgb(255, 128, 23)!important;
+}
+nav {
+  background-color: rgb(255, 128, 23);
+}
+a {
+  color: white;
+}
+.container {
+  max-width: 900px;
+}
+.col-md-3 img {
+  height: 500px;
+  width: 120px!important;
+  margin: 0 auto;
+  margin-left: 5px;
+  padding-top: 10px;
+}
+.col-md-4 {
+  max-height: 500px;
+  padding: 10px;
+}
+img {
+  height: 200px;
+  width: 55px!important;
+  margin: 20px auto;
+}
+.card-text {
+  font-weight: bolder;
+  font-size: 20px;
+  text-align: center;
+  color: rgb(255, 128, 23);
+}
+.card-footer {
+  text-align: center;
+  font-size: 16px!important;
+  color: grey;
+  padding: 0px;
+  border: none;
+}
+#produtos > div > div:hover {
+  box-shadow: 0 0 5px #333;
+  transition: 0.2s ease-in;
+  transform: scale(1.02);
+}
+h2 {
+  color: rgb(255, 128, 23);
+  font-weight: bolder;
+  font-size: 30px;
+}
+h4 {
+  color: grey;
+  font-size: 17px;
+}
+h5 {
+  font-weight: bolder;
+  color: grey;
+  font-size: 17px;
+}
+h6 {
+  color: rgb(255, 128, 23);
+  font-size: 25px;
+  font-weight: bolder;
+}
+div h3 {
+  color: grey;
+  font-size: 21px;
+}
+.modal-content {
+  width: 570px!important;
+}
+.modal-header {
+  border: none;
+}
+p, ul {
+  color: grey;
+}
+.star {
+  text-align: right;
+  padding-right: 10px;
+  padding-top: 10px;
+}
+.fas {
+  color: goldenrod;
+}
+div .card-footer {
+  background-color: white;
+  color: grey;
+  text-align: center;
+  font-size: 17px;
+}
+#also-like {
+  margin-left: 25px;
+}
+hr {
+  width: 85px;
+  margin-left: 0;
+  border: 3px solid purple;
+}
+#relacionados {
+  width: 100%;
+  text-align: center;
+}
+#relacionados img {
+  margin: 10px 30px;
+  width: 50px;
+}
+#relacionados div {
+  display: inline-block;
+  border: 1px solid grey;
+  margin: 0 20px;
+  border-radius: 3px;
+  width: 140px;
+  height: 300px;
+  text-align: center;
+}
+[onclick] {
+  cursor:pointer;
+}

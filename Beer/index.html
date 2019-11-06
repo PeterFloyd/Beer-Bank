@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <title>The Beer Bank</title>
+      <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"> <!-- Bootstrap core CSS -->
+      <link href="css/business-frontpage.css" rel="stylesheet"> <!-- Custom styles for this template -->
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.11/css/select2.min.css" rel="stylesheet" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css">
+      <script src="vendor/jquery/jquery.min.js"></script> <!-- Bootstrap core JavaScript -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.11/js/select2.min.js"></script>
+      <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+      <link rel="stylesheet" href="estilo.css">
+      
+      <script>
+        var resposta;
+
+        function reqListener () {
+			resposta = eval(this.response)
+			$('#produtos').empty()
+			listar(9)
+		}
+
+		function listar(quantidade) {
+			var listados = $('#produtos > div').length
+			if (resposta.length == listados) {
+				return
+			}
+			var produtos = document.getElementById("produtos")
+			var favoritos = obterFavoritos()
+			var limite = listados+quantidade
+
+        	for (var index = listados; index < limite; index++) {
+            produtos.insertAdjacentHTML( 'beforeend',
+              '<div class="col-md-4 mb-5">\n'+
+              '  <div class="card h-100">\n'+
+              '  <div class="star">\n'+
+              `    <i id="star${resposta[index].id}" class="far fa-star" onclick="favorito(${resposta[index].id})"></i></div>\n`+
+              '    <img class="card-img-top" src="'+resposta[index].image_url+'" alt="" onclick="abrirModal('+index+')">\n'+
+              '    <div class="card-body">\n'+
+              '      <h4 class="card-title"></h4>\n'+
+              '      <p class="card-text" onclick="abrirModal('+index+')">'+resposta[index].name+'</p>\n'+
+              '    <div class="card-footer">'+resposta[index].tagline+'</div>\n'+
+              '   </div>\n'+
+              '  </div>\n'+
+              '</div>'
+			)
+		  };
+		  for (let i = 0; i < favoritos.length; i++) {
+			star = document.getElementById(`star${favoritos[i]}`)
+			if (star) {
+				star.classList.toggle("fas");
+		  	}
+		  }
+		};
+
+        var oReq = new XMLHttpRequest();
+        	oReq.onload = reqListener;
+
+        function load() {
+			var url = 'https://api.punkapi.com/v2/beers?per_page=80'
+			if ($('[type=search]').val()) {
+				url += '&beer_name='+$('[type=search]').val()
+			}
+			oReq.open("get", url, true);
+			oReq.send();
+        }
+
+        load() 
+
+        function abrirModal (index) {
+          var item = resposta[index]
+          $('.modal-body h2').html(item.name)
+          $('.modal-body h3').html(item.tagline)
+          $('.modal-body h4').html('<b>IBU: </b>'+item.ibu+'    <b>ABV: </b>'+item.abv+'    <b>EBC: </b>'+item.ebc)
+          $('.modal-body p').html(item.description)
+          $('.modal-body ul').empty()
+          item.food_pairing.forEach(function(item,index) {
+            $('.modal-body ul').append('<li>'+item+'</li>')
+          })
+          $('.modal-body img').attr('src',item.image_url)
+          $('#modal').modal('show')
+          $('#relacionados').empty()
+          for (let i = 0; i < 3; i++) {
+            var beer = resposta[Math.floor((Math.random() * resposta.length) + 1)]
+            bloco = $('<div/>')
+            bloco.append(`<img src="${beer.image_url}">`)
+            bloco.append(`<h5>${beer.name}</h5>`)
+            console.log(bloco)
+            $('#relacionados').append(bloco)
+          }
+        }
+
+        function favorito(item) {
+			var favoritos = obterFavoritos()
+          	
+          document.getElementById(`star${item}`).classList.toggle("fas");
+        
+		if (favoritos.indexOf(item) > -1) {
+			favoritos.splice(favoritos.indexOf(item), 1);
+		} else {
+			favoritos.push(item)
+		}
+          localStorage.setItem('favoritos',JSON.stringify(favoritos))
+		}
+		
+		function obterFavoritos() {
+			var favoritos = window.localStorage.getItem('favoritos')
+			if (favoritos) {
+				return JSON.parse(favoritos)
+			}
+			else return []
+        }
+
+		$(document).ready(function(){
+			$('#filtro form').submit(function(evt) {
+				evt.preventDefault()
+				var filter = {}
+				$(this).find('[name]').each(function(index, elem) {
+					if (this.value) {
+						filter[this.name] = this.value
+					}
+				})
+				$.get('https://api.punkapi.com/v2/beers', filter, function(data) {
+					resposta = data
+					listar(9)
+				})
+				$('#filtro').modal('hide')
+			})
+
+			$(window).scroll(function() {
+				if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
+					listar(9);
+				}
+			});
+			
+        });
+
+      </script>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg fixed-top"> <!-- Navigation -->
+      <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">HOME</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="favorite.html">FAVORITE</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <header class="bg-primary py-5 mb-5">
+		<h1>The Beer Bank</h1>
+		<h2>Find your favorite beer here</h2>
+		<input type="search" placeholder="Search for beer name" onchange="load()">
+		<button data-toggle="modal" data-target="#filtro"><i class="fa fa-filter"></i> Filtrar</button>
+    </header>
+
+    <div class="container"> <!-- Page Content -->
+      <div class="row" id="produtos">
+        
+      </div>
+    </div>
+
+      </div>
+      <!-- /.row -->
+
+    </div>
+    <!-- /.container -->
+
+    <footer class="py-5 bg-dark"> <!-- Footer -->
+      <div class="container">
+        <p class="m-0 text-center text-white">Copyright &copy; The Beer Bank by Nostradamus 2019</p>
+      </div>
+      <!-- /.container -->
+    </footer>
+
+    <div class="modal" tabindex="-1" role="dialog" id="modal">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <img src="" alt="">
+                </div>
+                <div class="col-md-9">
+                  <h2></h2>
+                  <h3></h3>
+                  <hr>
+                  <h4></h4>
+                  <br>
+                  <p></p>
+                  <h5>Best served with:</h5>
+                  <ul></ul>
+                </div>
+                <h6 id="also-like">You might also like:</h6>
+                <div id="relacionados"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+	  </div>
+	  
+	  <div class="modal" tabindex="-1" role="dialog" id="filtro">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+				<form action="">
+          <input type="hiden" name="per_page" value="80">
+					<div class="row">
+						<div class="col-md-6">
+							<input type="number" name="ibu_gt" placeholder="Max IBU">
+							<input type="number" name="ibu_lt" placeholder="Min IBU">
+						</div>
+						<div class="col-md-6">
+								<input type="number" name="abv_gt" placeholder="Max ABV">
+								<input type="number" name="abv_lt" placeholder="Min ABV">
+						</div>
+						<div class="col-md-6">
+							<input type="number" name="ebc_gt" placeholder="Max EBC">
+							<input type="number" name="ebc_lt" placeholder="Min EBC">
+						</div>
+						<div class="col-md-6">
+							<input type="date" name="brewed_before" placeholder="Brewed Before">
+							<input type="date" name="brewed_after" placeholder="Brewed After">
+						</div>
+					</div>
+					<input type="submit" value="Filtrar">
+				</form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+  </body>
+
+</html>
